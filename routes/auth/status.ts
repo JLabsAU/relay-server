@@ -19,7 +19,7 @@ export async function getAuthStatusHandler(
 
     let mintReceipt: providers.TransactionReceipt;
     try {
-        mintReceipt = await provider.waitForTransaction(requestId, SAFE_BLOCK_CONFIRMATIONS, 200); // 200ms is the max we will wait for.
+        mintReceipt = await provider.waitForTransaction(requestId, SAFE_BLOCK_CONFIRMATIONS, 9999); // 200ms is the max we will wait for.
         console.log("mint PKP receipt", { mintReceipt });
     } catch (err: any) {
         console.error("Error waiting for transaction hash", { txHash: requestId, err });
