@@ -325,7 +325,7 @@ app.post("/store-condition", limiter, storeConditionHandler);
 app.post("/auth/google", googleOAuthHandler);
 app.get("/auth/status/:requestId", getAuthStatusHandler);
 
-const host = process.env.HOST;
+const host = process.env.HOST || '0.0.0.0';
 if (ENABLE_HTTPS) {
   const port = 443;
   expectedOrigin = `https://${rpID}`;
