@@ -42,6 +42,9 @@ export async function getAuthStatusHandler(
         const pkpEthAddress = await getPkpEthAddress(tokenIdFromEvent);
         const pkpPublicKey = await getPkpPublicKey(tokenIdFromEvent);
 
+        console.debug("mint receipt", JSON.stringify(mintReceipt, null, 4));
+        console.debug("token", tokenIdFromEvent);
+
         return res.status(200).json({
             status: AuthStatus.Succeeded,
             pkpEthAddress,

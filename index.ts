@@ -325,8 +325,8 @@ app.post("/store-condition", limiter, storeConditionHandler);
 app.post("/auth/google", googleOAuthHandler);
 app.get("/auth/status/:requestId", getAuthStatusHandler);
 
+const host = process.env.HOST;
 if (ENABLE_HTTPS) {
-  const host = "0.0.0.0";
   const port = 443;
   expectedOrigin = `https://${rpID}`;
 
@@ -345,9 +345,8 @@ if (ENABLE_HTTPS) {
       console.log(`🚀 Server ready at ${expectedOrigin} (${host}:${port})`);
     });
 } else {
-  const host = "127.0.0.1";
   const port = parseInt(PORT);
-  expectedOrigin = `http://localhost:${port}`;
+  expectedOrigin = `http://${host}:${port}`;
 
   http.createServer(app).listen(port, host, () => {
     console.log(`🚀 Server ready at ${expectedOrigin} (${host}:${port})`);
