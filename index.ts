@@ -326,8 +326,8 @@ app.post("/auth/google", googleOAuthHandler);
 app.get("/auth/status/:requestId", getAuthStatusHandler);
 
 const host = process.env.HOST || '0.0.0.0';
+const port = parseInt(PORT);
 if (ENABLE_HTTPS) {
-  const port = 443;
   expectedOrigin = `https://${rpID}`;
 
   https
@@ -345,7 +345,6 @@ if (ENABLE_HTTPS) {
       console.log(`🚀 Server ready at ${expectedOrigin} (${host}:${port})`);
     });
 } else {
-  const port = parseInt(PORT);
   expectedOrigin = `http://${host}:${port}`;
 
   http.createServer(app).listen(port, host, () => {
