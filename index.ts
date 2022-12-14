@@ -336,8 +336,8 @@ if (ENABLE_HTTPS) {
         /**
          * See the README on how to generate this SSL cert and key pair using mkcert
          */
-        key: fs.readFileSync(`./${rpID}.key`),
-        cert: fs.readFileSync(`./${rpID}.crt`),
+        key: fs.readFileSync(`./ssl/key.pem`),
+        cert: fs.readFileSync(`./ssl/cert.pem`),
       },
       app
     )
