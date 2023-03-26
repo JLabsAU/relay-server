@@ -7,7 +7,7 @@ import { utils } from 'ethers';
 import { toUtf8Bytes } from 'ethers/lib/utils';
 import { mintPKP } from '../../lit';
 
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '1071348522014-3qq1ln33ful535dnd8r4f6f9vtjrv2nu.apps.googleusercontent.com';
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 const client = new OAuth2Client(CLIENT_ID);
 
@@ -30,6 +30,7 @@ export async function googleOAuthHandler(
     let tokenPayload: TokenPayload | null = null;
     try {
         tokenPayload = await verifyIDToken(idToken);
+        console.info("tokenPayload", JSON.stringify(tokenPayload, null, 4));
         console.info("Successfully verified user", { userId: tokenPayload.sub })
     } catch (err) {
         console.error("Unable to verify Google idToken", { err });
