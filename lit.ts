@@ -1,6 +1,11 @@
 import { ethers, utils } from "ethers";
 import fs from "fs";
 import { AuthMethodType, StoreConditionWithSigner } from "./models";
+const {
+  ipfsIdToIpfsIdHash,
+  getBytes32FromMultihash,
+  getBytesFromMultihash,
+} = require("./utils/utils.js");
 
 const accessControlConditionsAddress = "0x247B02100dc0929472945E91299c88b8c80b029E";
 const pkpNftAddress = "0x86062B7a01B8b2e22619dBE0C15cbe3F7EBd0E92";
@@ -108,7 +113,29 @@ export async function mintPKP({
   // first get mint cost
   const mintCost = await pkpNft.mintCost();
 
+  const ipfsIdsToPermit = [
+    "Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e", // lit-action-simple-case.js
+];
+const ipfsIdsBytes = ipfsIdsToPermit.map((f) =>
+    getBytesFromMultihash(f)
+);
+
   // then, mint PKP using helper
+  const tx = await pkpHelper.mintNextAndAddAuthMethodsWithTypes(
+    2,
+    ipfsIdsBytes, // permitted ipfs CIDs
+    [[]], // permitted ipfs CIDs scopes
+    [], // permitted addresses
+    [], 
+    [authMethodType],
+    [idForAuthMethod],
+    ["0x"],
+    [[ethers.BigNumber.from("0")]],
+    true,
+    true,
+    { value: mintCost }
+  );
+  /*
   const tx = await pkpHelper.mintNextAndAddAuthMethods(
     2,
     [authMethodType],
@@ -119,6 +146,7 @@ export async function mintPKP({
     true,
     { value: mintCost }
   );
+  */
   console.log("tx", tx);
   return tx;
 }
