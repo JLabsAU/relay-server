@@ -2,7 +2,7 @@ import { errors, providers } from 'ethers';
 import { Request } from 'express';
 import { Response } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
-import { getPkpEthAddress, getPkpPublicKey, getProvider } from '../../lit';
+import { getPkpEthAddress, getPkpPublicKey, getProvider, burnPKP, getIpfsIdBytesOfThePermittedLitAction } from '../../lit';
 import { AuthStatus, GetAuthStatusRequestParams, GetAuthStatusResponse } from '../../models';
 
 const SAFE_BLOCK_CONFIRMATIONS = 8;
@@ -44,6 +44,9 @@ export async function getAuthStatusHandler(
 
         console.debug("mint receipt", JSON.stringify(mintReceipt, null, 4));
         console.debug("token", tokenIdFromEvent);
+
+        await burnPKP(tokenIdFromEvent, getIpfsIdBytesOfThePermittedLitAction());
+        console.debug("PKP burnt");
 
         return res.status(200).json({
             status: AuthStatus.Succeeded,

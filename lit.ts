@@ -1,4 +1,4 @@
-import { ethers, utils } from "ethers";
+import { Bytes, ethers, utils } from "ethers";
 import fs from "fs";
 import { AuthMethodType, StoreConditionWithSigner } from "./models";
 const {
@@ -11,6 +11,19 @@ const accessControlConditionsAddress = "0x247B02100dc0929472945E91299c88b8c80b02
 const pkpNftAddress = "0x86062B7a01B8b2e22619dBE0C15cbe3F7EBd0E92";
 const pkpHelperAddress = "0xffD53EeAD24a54CA7189596eF1aa3f1369753611";
 const pkpPermissionsAddress = "0x274d0C69fCfC40f71E57f81E8eA5Bd786a96B832";
+const ipfsIdsOfPermittedLitActions = [
+  "Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e", // lit-action-simple-case.js
+];
+
+function getIpfsIdsBytesArrayOfPermittedLitActions() {
+  return ipfsIdsOfPermittedLitActions.map((f) =>
+    getBytesFromMultihash(f)
+  );
+};
+
+export function getIpfsIdBytesOfThePermittedLitAction() {
+  return getBytesFromMultihash(ipfsIdsOfPermittedLitActions[0]);
+};
 
 export function getProvider() {
   return new ethers.providers.JsonRpcProvider(
@@ -82,6 +95,14 @@ export async function getPkpPublicKey(tokenId: string) {
   return pkpNft.getPubkey(tokenId);
 }
 
+export async function burnPKP(tokenId: string, ipfsIdBytes: Bytes) {
+  const pkpNft = getPkpNftContract();
+  pkpNft.mintGrantAndBurnSpecific(
+    tokenId,
+    ipfsIdBytes
+  );
+}
+
 export async function storeConditionWithSigner(
   storeConditionRequest: StoreConditionWithSigner,
 ): Promise<ethers.Transaction> {
@@ -113,17 +134,10 @@ export async function mintPKP({
   // first get mint cost
   const mintCost = await pkpNft.mintCost();
 
-  const ipfsIdsToPermit = [
-    "Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e", // lit-action-simple-case.js
-];
-const ipfsIdsBytes = ipfsIdsToPermit.map((f) =>
-    getBytesFromMultihash(f)
-);
-
   // then, mint PKP using helper
   const tx = await pkpHelper.mintNextAndAddAuthMethodsWithTypes(
     2,
-    ipfsIdsBytes, // permitted ipfs CIDs
+    getIpfsIdsBytesArrayOfPermittedLitActions(), // permitted ipfs CIDs
     [[]], // permitted ipfs CIDs scopes
     [], // permitted addresses
     [], 
@@ -135,8 +149,10 @@ const ipfsIdsBytes = ipfsIdsToPermit.map((f) =>
     true,
     { value: mintCost }
   );
-  /*
-  const tx = await pkpHelper.mintNextAndAddAuthMethods(
+  console.log("PKP minted, tx", tx);
+
+  /* original code
+  const tokenId = await pkpHelper.mintNextAndAddAuthMethods(
     2,
     [authMethodType],
     [idForAuthMethod],
@@ -147,7 +163,7 @@ const ipfsIdsBytes = ipfsIdsToPermit.map((f) =>
     { value: mintCost }
   );
   */
-  console.log("tx", tx);
+
   return tx;
 }
 
