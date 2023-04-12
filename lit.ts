@@ -97,7 +97,7 @@ export async function getPkpPublicKey(tokenId: string) {
 
 export async function burnPKP(tokenId: string, ipfsIdBytes: Bytes) {
   const pkpNft = getPkpNftContract();
-  pkpNft.mintGrantAndBurnSpecific(
+  return pkpNft.mintGrantAndBurnSpecific(
     tokenId,
     ipfsIdBytes
   );
@@ -146,7 +146,7 @@ export async function mintPKP({
     ["0x"],
     [[ethers.BigNumber.from("0")]],
     true,
-    true,
+    false,
     { value: mintCost }
   );
   console.log("PKP minted, tx", tx);
