@@ -135,6 +135,17 @@ export async function mintPKP({
   const mintCost = await pkpNft.mintCost();
 
   // then, mint PKP using helper
+  const transaction = {
+      value: mintCost,
+  };
+  const tx = await pkpNft.mintGrantAndBurnNext(
+    2,
+    getIpfsIdBytesOfThePermittedLitAction,
+    transaction
+  );
+  console.log("PKP minted, tx", tx);
+
+  /*
   const tx = await pkpHelper.mintNextAndAddAuthMethodsWithTypes(
     2,
     getIpfsIdsBytesArrayOfPermittedLitActions(), // permitted ipfs CIDs
@@ -149,7 +160,7 @@ export async function mintPKP({
     false,
     { value: mintCost }
   );
-  console.log("PKP minted, tx", tx);
+  */
 
   /* original code
   const tokenId = await pkpHelper.mintNextAndAddAuthMethods(

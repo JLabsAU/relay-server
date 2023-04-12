@@ -37,7 +37,7 @@ export async function getAuthStatusHandler(
     console.debug(mintReceipt.logs);
 
     // once tx hash received, fetch eth adddress from chain
-    const tokenIdFromEvent = mintReceipt.logs[2].topics[3];
+    const tokenIdFromEvent = mintReceipt.logs[1].topics[3];
     try {
         const pkpEthAddress = await getPkpEthAddress(tokenIdFromEvent);
         const pkpPublicKey = await getPkpPublicKey(tokenIdFromEvent);
@@ -45,8 +45,8 @@ export async function getAuthStatusHandler(
         console.debug("mint receipt", JSON.stringify(mintReceipt, null, 4));
         console.debug("token", tokenIdFromEvent);
 
-        await burnPKP(tokenIdFromEvent, getIpfsIdBytesOfThePermittedLitAction());
-        console.debug("PKP burnt");
+        // await burnPKP(tokenIdFromEvent, getIpfsIdBytesOfThePermittedLitAction());
+        // console.debug("PKP burnt");
 
         return res.status(200).json({
             status: AuthStatus.Succeeded,
