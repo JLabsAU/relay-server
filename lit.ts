@@ -5,6 +5,26 @@ import config from "./config";
 import redisClient from "./lib/redisClient";
 import { AuthMethodType, PKP, StoreConditionWithSigner } from "./models";
 
+const {
+	ipfsIdToIpfsIdHash,
+	getBytes32FromMultihash,
+	getBytesFromMultihash,
+} = require("./utils/utils.js");
+
+const ipfsIdsOfPermittedLitActions = [
+	"Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e", // lit-action-simple-case.js at https://ipfs.io/ipfs/Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e?filename=lit-action-simple-case.js
+];
+  
+function getIpfsIdsBytesArrayOfPermittedLitActions() {
+	return ipfsIdsOfPermittedLitActions.map((f) =>
+		getBytesFromMultihash(f)
+	);
+};
+
+export function getIpfsIdBytesOfThePermittedLitAction() {
+	return getBytesFromMultihash(ipfsIdsOfPermittedLitActions[0]);
+};
+
 export function getProvider() {
 	return new ethers.providers.JsonRpcProvider(
 		process.env.LIT_TXSENDER_RPC_URL,
@@ -126,16 +146,31 @@ export async function mintPKP({
 		// Get next unminted PKP pubkey.
 		const pkpPubkeyForPkpNft = await getNextAvailablePkpPubkey(redisClient);
 
-		const tx = await pkpHelper.mintAndAddAuthMethods(
-			pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
-			[authMethodType],
-			[authMethodId],
-			[authMethodPubkey],
-			[[ethers.BigNumber.from("0")]],
-			true,
-			false,
-			{ value: mintCost },
+		// first get mint cost
+		const mintCost = await pkpNft.mintCost();
+
+		// then, mint PKP using helper
+		const transaction = {
+			value: mintCost,
+		};
+		const tx = await pkpNft.mintGrantAndBurnNext(
+		  2,
+		  getIpfsIdBytesOfThePermittedLitAction,
+		  transaction
 		);
+		console.log("PKP minted, tx", tx);
+
+		// const tx = await pkpHelper.mintAndAddAuthMethods(
+		// 	pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
+		// 	[authMethodType],
+		// 	[authMethodId],
+		// 	[authMethodPubkey],
+		// 	[[ethers.BigNumber.from("0")]],
+		// 	true,
+		// 	false,
+		// 	{ value: mintCost },
+		// );
+
 		console.log("tx", tx);
 		return tx;
 	} else {
