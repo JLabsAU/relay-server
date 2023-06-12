@@ -3,3 +3,6 @@ node_modules
 dist
 .DS_Store
 *.pem
+localhost.crt
+localhost.key
+dump.rdb
