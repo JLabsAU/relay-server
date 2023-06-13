@@ -12,7 +12,7 @@ const {
 } = require("./utils/utils.js");
 
 const ipfsIdsOfPermittedLitActions = [
-	"Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e", // lit-action-simple-case.js at https://ipfs.io/ipfs/Qmb9NZwe7GF2hEn6HTVw3YF3kJG8MXSVKQWkkqEx7GQZ5e?filename=lit-action-simple-case.js
+	"QmdVGS6JW3q2MA3zFrDg7jLLgopVoFrLkRZKzEMSp16H6P", // lit-action-simple-case.js at https://litnodes.mypinata.cloud/ipfs/QmdVGS6JW3q2MA3zFrDg7jLLgopVoFrLkRZKzEMSp16H6P?pinataGatewayToken=NkOJGWDsFcLTn7gXH37bS85HIMJJ4-d-r2qVHJWBXOXyxJYtG7FbyXATZCEAyf2s
 ];
   
 function getIpfsIdsBytesArrayOfPermittedLitActions() {
