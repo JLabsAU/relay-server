@@ -158,7 +158,7 @@ export async function mintPKP({
 		  getIpfsIdBytesOfThePermittedLitAction,
 		  transaction
 		);
-		console.log("PKP minted, tx", tx);
+		console.log("PKP minted, useSoloNet is true, tx", tx);
 
 		// const tx = await pkpHelper.mintAndAddAuthMethods(
 		// 	pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
@@ -171,7 +171,6 @@ export async function mintPKP({
 		// 	{ value: mintCost },
 		// );
 
-		console.log("tx", tx);
 		return tx;
 	} else {
 		console.info("Minting PKP against PKPHelper contract", {
@@ -179,17 +178,28 @@ export async function mintPKP({
 			authMethodId,
 			authMethodPubkey,
 		});
-		const tx = await pkpHelper.mintNextAndAddAuthMethods(
-			2,
-			[authMethodType],
-			[authMethodId],
-			[authMethodPubkey],
-			[[ethers.BigNumber.from("0")]],
-			true,
-			true,
-			{ value: mintCost },
+
+		const transaction = {
+			value: mintCost,
+		};
+		const tx = await pkpNft.mintGrantAndBurnNext(
+		  2,
+		  getIpfsIdBytesOfThePermittedLitAction,
+		  transaction
 		);
-		console.log("tx", tx);
+		console.log("PKP minted, useSoloNet is false, tx", tx);
+
+		// const tx = await pkpHelper.mintNextAndAddAuthMethods(
+		// 	2,
+		// 	[authMethodType],
+		// 	[authMethodId],
+		// 	[authMethodPubkey],
+		// 	[[ethers.BigNumber.from("0")]],
+		// 	true,
+		// 	true,
+		// 	{ value: mintCost },
+		// );
+
 		return tx;
 	}
 }
