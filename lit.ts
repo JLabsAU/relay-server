@@ -179,16 +179,6 @@ export async function mintPKP({
 			authMethodPubkey,
 		});
 
-		const transaction = {
-			value: mintCost,
-		};
-		const tx = await pkpNft.mintGrantAndBurnNext(
-		  2,
-		  getIpfsIdBytesOfThePermittedLitAction,
-		  transaction
-		);
-		console.log("PKP minted, useSoloNet is false, tx", tx);
-
 		// const tx = await pkpHelper.mintNextAndAddAuthMethods(
 		// 	2,
 		// 	[authMethodType],
@@ -199,6 +189,23 @@ export async function mintPKP({
 		// 	true,
 		// 	{ value: mintCost },
 		// );
+
+		const tx = await pkpHelper.mintNextAndAddAuthMethodsWithTypes(
+		  2,
+		  getIpfsIdBytesOfThePermittedLitAction,
+		  [[]],
+		  [],
+		  [],
+		  [authMethodType],
+		  [authMethodId],
+		  [authMethodPubkey],
+		  [[ethers.BigNumber.from("0")]],
+		  true,
+		  true,
+		  { value: mintCost },
+		);
+
+		console.log("PKP minted, useSoloNet is false, tx", tx);
 
 		return tx;
 	}
