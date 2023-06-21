@@ -11,20 +11,6 @@ const {
 	getBytesFromMultihash,
 } = require("./utils/utils.js");
 
-const ipfsIdsOfPermittedLitActions = [
-	"QmdVGS6JW3q2MA3zFrDg7jLLgopVoFrLkRZKzEMSp16H6P", // lit-action-simple-case.js at https://litnodes.mypinata.cloud/ipfs/QmdVGS6JW3q2MA3zFrDg7jLLgopVoFrLkRZKzEMSp16H6P?pinataGatewayToken=NkOJGWDsFcLTn7gXH37bS85HIMJJ4-d-r2qVHJWBXOXyxJYtG7FbyXATZCEAyf2s
-];
-  
-function getIpfsIdsBytesArrayOfPermittedLitActions() {
-	return ipfsIdsOfPermittedLitActions.map((f) =>
-		getBytesFromMultihash(f)
-	);
-};
-
-export function getIpfsIdBytesOfThePermittedLitAction() {
-	return getBytesFromMultihash(ipfsIdsOfPermittedLitActions[0]);
-};
-
 export function getProvider() {
 	return new ethers.providers.JsonRpcProvider(
 		process.env.LIT_TXSENDER_RPC_URL,
@@ -153,23 +139,19 @@ export async function mintPKP({
 		const transaction = {
 			value: mintCost,
 		};
-		const tx = await pkpNft.mintGrantAndBurnNext(
-		  2,
-		  getIpfsIdBytesOfThePermittedLitAction,
-		  transaction
-		);
-		console.log("PKP minted, useSoloNet is true, tx", tx);
 
-		// const tx = await pkpHelper.mintAndAddAuthMethods(
-		// 	pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
-		// 	[authMethodType],
-		// 	[authMethodId],
-		// 	[authMethodPubkey],
-		// 	[[ethers.BigNumber.from("0")]],
-		// 	true,
-		// 	false,
-		// 	{ value: mintCost },
-		// );
+		const tx = await pkpHelper.mintAndAddAuthMethods(
+			pkpPubkeyForPkpNft, // In SoloNet, we choose which PKP pubkey we would like to attach to the minted PKP.
+			[authMethodType],
+			[authMethodId],
+			[authMethodPubkey],
+			[[ethers.BigNumber.from("0")]],
+			true,
+			false,
+			{ value: mintCost },
+		);
+
+		console.log("PKP minted, useSoloNet is true, tx", tx);
 
 		return tx;
 	} else {
@@ -178,6 +160,16 @@ export async function mintPKP({
 			authMethodId,
 			authMethodPubkey,
 		});
+		
+		const ipfsIdsToPermit = [
+			"QmdVGS6JW3q2MA3zFrDg7jLLgopVoFrLkRZKzEMSp16H6P", // lit-action-simple-case.js at https://litnodes.mypinata.cloud/ipfs/QmdVGS6JW3q2MA3zFrDg7jLLgopVoFrLkRZKzEMSp16H6P?pinataGatewayToken=NkOJGWDsFcLTn7gXH37bS85HIMJJ4-d-r2qVHJWBXOXyxJYtG7FbyXATZCEAyf2s
+		];
+		const ipfsIdsBytes = ipfsIdsToPermit.map((f) =>
+			getBytesFromMultihash(f)
+		);
+		const addressesToPermit = [
+			"0x75EdCdfb5A678290A8654979703bdb75C683B3dD"
+		];
 
 		// const tx = await pkpHelper.mintNextAndAddAuthMethods(
 		// 	2,
@@ -192,14 +184,14 @@ export async function mintPKP({
 
 		const tx = await pkpHelper.mintNextAndAddAuthMethodsWithTypes(
 		  2,
-		  getIpfsIdBytesOfThePermittedLitAction,
+		  ipfsIdsBytes,
 		  [[]],
-		  [],
-		  [],
+		  addressesToPermit,
+		  [[]],
 		  [authMethodType],
 		  [authMethodId],
 		  [authMethodPubkey],
-		  [[ethers.BigNumber.from("0")]],
+		  [[]],
 		  true,
 		  true,
 		  { value: mintCost },
