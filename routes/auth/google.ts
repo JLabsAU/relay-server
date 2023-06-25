@@ -120,6 +120,10 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 			idForAuthMethod,
 		});
 
+		console.info("Fetched PKPs with Google auth", {
+			pkps: pkps,
+		});
+
 		const pkpPermissionsContract = getPermissionsContract();
 		await Promise.all(
 			pkps.map(async (pkp) => {
@@ -128,18 +132,20 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 				console.log("PKP permissions", {
 					tokenId: pkp.tokenId,
 					publicKey: pkp.publicKey,
+					ethAddress: pkp.ethAddress,
 					permittedAddresses: permittedAddresses,
 				});
 			})
 		);
 
-		// await pkpPermissionsContract.removePermittedAddress(
-		// 	"0xf6192c38dee55e0dea0a8b581de18685140017cc4391b3aa27878498b9c24d15",
-		// 	"0xD1fb8ac533Fe2385F5030889aBF96BfdFfde86fC"
-		// );
+		await pkpPermissionsContract.removePermittedAddress(
+			pkps[0].tokenId,
+			pkps[0].ethAddress,
+		);
 
-		console.info("Fetched PKPs with Google auth", {
-			pkps: pkps,
+		console.info("Removed permitted addresses from PKP", {
+			tokenId: pkps[0].tokenId,
+			publicKey: pkps[0].publicKey,
 		});
 
 		return res.status(200).json({
