@@ -10,7 +10,7 @@ import {
 import { OAuth2Client, TokenPayload } from "google-auth-library";
 import { utils } from "ethers";
 import { toUtf8Bytes } from "ethers/lib/utils";
-import { mintPKP, getPKPsForAuthMethod } from "../../lit";
+import { mintPKP, getPKPsForAuthMethod, getPermissionsContract } from "../../lit";
 
 const CLIENT_ID =
 	process.env.GOOGLE_CLIENT_ID ||
@@ -119,9 +119,29 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 			authMethodType: AuthMethodType.GoogleJwt,
 			idForAuthMethod,
 		});
+
+		const pkpPermissionsContract = getPermissionsContract();
+		await Promise.all(
+			pkps.map(async (pkp) => {
+				const permittedAddresses = await pkpPermissionsContract.getPermittedAddresses(pkp.tokenId);	
+			
+				console.log("PKP permissions", {
+					tokenId: pkp.tokenId,
+					publicKey: pkp.publicKey,
+					permittedAddresses: permittedAddresses,
+				});
+			})
+		);
+
+		// await pkpPermissionsContract.removePermittedAddress(
+		// 	"0xf6192c38dee55e0dea0a8b581de18685140017cc4391b3aa27878498b9c24d15",
+		// 	"0xD1fb8ac533Fe2385F5030889aBF96BfdFfde86fC"
+		// );
+
 		console.info("Fetched PKPs with Google auth", {
 			pkps: pkps,
 		});
+
 		return res.status(200).json({
 			pkps: pkps,
 		});

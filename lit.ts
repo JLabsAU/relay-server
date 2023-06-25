@@ -60,7 +60,7 @@ function getPkpHelperContract() {
 	return getContract(getPkpHelperContractAbiPath(), config.pkpHelperAddress);
 }
 
-function getPermissionsContract() {
+export function getPermissionsContract() {
 	return getContract(
 		"./contracts/PKPPermissions.json",
 		config.pkpPermissionsAddress,
