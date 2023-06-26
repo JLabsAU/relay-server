@@ -12,6 +12,7 @@ import { utils } from "ethers";
 import { toUtf8Bytes } from "ethers/lib/utils";
 import { mintPKP, getPKPsForAuthMethod, getPermissionsContractWithParams } from "../../lit";
 import { PKPEthersWallet } from "@lit-protocol/pkp-ethers";
+import { LitContracts } from "@lit-protocol/contracts-sdk";
 
 const CLIENT_ID =
 	process.env.GOOGLE_CLIENT_ID ||
@@ -197,6 +198,7 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 				"algo": "ed25519"
 			}
 		};
+
 		const pkpEthersWallet = new PKPEthersWallet({
 			controllerSessionSigs: sessionSigs,
 			pkpPubKey: pkps[0].publicKey,
@@ -205,10 +207,14 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 		  });
 		await pkpEthersWallet.init();
 
-		const pkpPermissionsContract = getPermissionsContractWithParams(pkpEthersWallet);
+		const litContracts = new LitContracts({
+		signer: pkpEthersWallet,
+		});
+		await litContracts.connect();
+
 		await Promise.all(
 			pkps.map(async (pkp) => {
-				const permittedAddresses = await pkpPermissionsContract.getPermittedAddresses(pkp.tokenId);	
+				const permittedAddresses = await litContracts.pkpPermissionsContract.read.getPermittedAddresses(pkp.tokenId);	
 			
 				console.log("PKP permissions", {
 					tokenId: pkp.tokenId,
@@ -219,9 +225,16 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 			})
 		);
 
-		await pkpPermissionsContract.removePermittedAddress(
+		console.info("Removing permitted addresses from PKP", {
+			tokenId: pkps[0].tokenId,
+			ethAddress: pkps[0].ethAddress,
+			publicKey: pkps[0].publicKey,
+		});
+
+		await litContracts.pkpPermissionsContract.write.removePermittedAddress(
 			pkps[0].tokenId,
 			pkps[0].ethAddress,
+			{ gasPrice: utils.parseUnits("0.001", "gwei"), gasLimit: 400000 }
 		);
 
 		console.info("Removed permitted addresses from PKP", {

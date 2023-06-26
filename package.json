@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@lit-protocol/pkp-ethers": "^2.2.11",
+    "@lit-protocol/contracts-sdk": "^2.1.143",
     "@simplewebauthn/server": "6.2.1",
     "base64url": "^3.0.1",
     "cbor": "^8.1.0",
