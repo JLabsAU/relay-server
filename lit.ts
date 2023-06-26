@@ -35,6 +35,16 @@ function getContract(abiPath: string, deployedContractAddress: string) {
 	return ethersContract;
 }
 
+function getContractWithSigner(signer: any, abiPath: string, deployedContractAddress: string) {
+	const contractJson = JSON.parse(fs.readFileSync(abiPath, "utf8"));
+	const ethersContract = new ethers.Contract(
+		deployedContractAddress,
+		contractJson,
+		signer,
+	);
+	return ethersContract;
+}
+
 function getAccessControlConditionsContract() {
 	return getContract(
 		"./contracts/AccessControlConditions.json",
@@ -62,6 +72,14 @@ function getPkpHelperContract() {
 
 export function getPermissionsContract() {
 	return getContract(
+		"./contracts/PKPPermissions.json",
+		config.pkpPermissionsAddress,
+	);
+}
+
+export function getPermissionsContractWithParams(signer: any) {
+	return getContractWithSigner(
+		signer,
 		"./contracts/PKPPermissions.json",
 		config.pkpPermissionsAddress,
 	);
