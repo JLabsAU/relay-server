@@ -225,22 +225,22 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 			})
 		);
 
-		console.info("Removing permitted addresses from PKP", {
-			tokenId: pkps[0].tokenId,
-			ethAddress: pkps[0].ethAddress,
-			publicKey: pkps[0].publicKey,
-		});
+		const lastPKP = pkps[pkps.length - 1];
+		const pkpForLogging = {
+			tokenId: lastPKP.tokenId,
+			ethAddress: lastPKP.ethAddress,
+			publicKey: lastPKP.publicKey,
+		};
+
+		console.info("Removing permitted addresses from PKP", pkpForLogging);
 
 		await litContracts.pkpPermissionsContract.write.removePermittedAddress(
-			pkps[0].tokenId,
-			pkps[0].ethAddress,
+			lastPKP.tokenId,
+			lastPKP.ethAddress,
 			{ gasPrice: utils.parseUnits("0.001", "gwei"), gasLimit: 400000 }
 		);
 
-		console.info("Removed permitted addresses from PKP", {
-			tokenId: pkps[0].tokenId,
-			publicKey: pkps[0].publicKey,
-		});
+		console.info("Removed permitted addresses from PKP", pkpForLogging);
 
 		return res.status(200).json({
 			pkps: pkps,
