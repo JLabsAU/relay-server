@@ -210,7 +210,7 @@ export async function mintPKP({
 		  [authMethodId],
 		  [authMethodPubkey],
 		  [[]],
-		  true,
+		  false,
 		  true,
 		  { value: mintCost },
 		);
