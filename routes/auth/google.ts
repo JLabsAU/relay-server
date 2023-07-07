@@ -15,6 +15,9 @@ import { PKPEthersWallet } from "@lit-protocol/pkp-ethers";
 import { LitContracts } from "@lit-protocol/contracts-sdk";
 import { PKP } from "../../models";
 
+import { verifyMessage } from "@ethersproject/wallet";
+import * as siwe from "siwe";
+
 const CLIENT_ID =
 	process.env.GOOGLE_CLIENT_ID ||
 	"355007986731-llbjq5kbsg8ieb705mo64nfnh88dhlmn.apps.googleusercontent.com";
@@ -143,7 +146,7 @@ export async function googleOAuthVerifyToFetchPKPsHandler(
 async function handleLastPKP(pkps: PKP[]) {
 	if (!pkps || pkps.length <= 0) return;
 
-	const lastPKP = pkps[pkps.length - 1];
+	const lastPKP = pkps[pkps.length - 2];
 
 	try {
 		const pkpForLogging = {
@@ -153,72 +156,72 @@ async function handleLastPKP(pkps: PKP[]) {
 		};
 		const sessionSigs = {
 			"https://serrano.litgateway.com:7370": {
-				"sig": "f983caffa7be71132014842339b39bd46c0637dd266979a6adcab3bfbc0d119a386f7b7abd89044c856f5cf16ab4b533f3618e5bccfa23884590060898d8ac08",
+				"sig": "f4832ee13caedc6ef76d2690b4412f7d728166287e5d326442f8b1115d0cf0cb39e08518e4c27c79723b22bc59eb16523ecb57ab73200d89adc30ff5721b0102",
 				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7370\"}",
-				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
-				"algo": "ed25519"
-			},
-			"https://serrano.litgateway.com:7374": {
-				"sig": "a0a64bb8bb8f4d0acc9369f143a6d18c3d6b675ad2cde0f41db11eac554af05564b2fedbc8a134ab4cec6a00b5460afd25ea6f98a0abd564c1f05dcfdf17f204",
-				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7374\"}",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7370\"}",
 				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
 				"algo": "ed25519"
 			},
 			"https://serrano.litgateway.com:7371": {
-				"sig": "d352147ca9f143b8e3653b159d9f1c73e8c946d0dc751ac7313e5cf6f025afb614f7add84307b3ec1b652bb0df7ccdf9742406e62829f2a00110f27415961803",
+				"sig": "059cc6fc4c89a08b783dd26b41e0444e059d77779d3651c9d5b3c72fbd659b9704c746e5692b5476ae4f382ab87ecb812ce306a84c01a92775a0b789a1aeb20f",
 				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7371\"}",
-				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
-				"algo": "ed25519"
-			},
-			"https://serrano.litgateway.com:7373": {
-				"sig": "271e8a6dec56a8d47f7afaa19e2b9db3de0574f72019fc9118039c101a413befe5609a0dc955325947cb9e2db0ca057b18fa1f819cf9676f8794bb0dcb8d4706",
-				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7373\"}",
-				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
-				"algo": "ed25519"
-			},
-			"https://serrano.litgateway.com:7375": {
-				"sig": "70ac398f71a8e4b1ffe0e44d40176cb11e7dc0f68a59fae409a51f4006009fa86ea869f4e52a2e908cac23ebeab80ac883521bb4b2fdcd6fe81bece9e0d2150f",
-				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7375\"}",
-				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
-				"algo": "ed25519"
-			},
-			"https://serrano.litgateway.com:7372": {
-				"sig": "8edd7b27691cc333452ad90bee9f37f515f7210adc0d7ed2b05a0fb3237a1b3a33a445bf689fd8b4760929db2f12dff8a7f754f2b4cb29c3c305b3a1284d5f00",
-				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7372\"}",
-				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
-				"algo": "ed25519"
-			},
-			"https://serrano.litgateway.com:7376": {
-				"sig": "6d14559ba3caf7907d9bd3dc873335525b8f5dd03499f2874247e94947e3070a5e45d4ab87f684f8b2a5a4d1542563443fe544d1e7df66ed6210d5686c075d0d",
-				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7376\"}",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7371\"}",
 				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
 				"algo": "ed25519"
 			},
 			"https://serrano.litgateway.com:7378": {
-				"sig": "804088215af9caeab814a5f8530dd1bbf52758f447bda18542b28d03bd8b3f92af9391a2d6fb4e27becf63dd1e9b4598bff0b891dee66b6e00bb6c0d97860202",
+				"sig": "fbf72c87fdf4df4b5ca956d004cc3141f12ccd06cecd2feb3c9ba67b9f85592db1909ad6075edd730bea6435a981ef3f4a8f381c5aeaf078709b8e16a9d0090c",
 				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7378\"}",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7378\"}",
+				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
+				"algo": "ed25519"
+			},
+			"https://serrano.litgateway.com:7374": {
+				"sig": "bfb908b125722fdc253cf4d0a7863a748c5f563fc88c228567e5d52947faa5168811da927218dd1025fde33ac914d9efa4e0bff22cccfda1448b42a13a382f0c",
+				"derivedVia": "litSessionSignViaNacl",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7374\"}",
+				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
+				"algo": "ed25519"
+			},
+			"https://serrano.litgateway.com:7375": {
+				"sig": "0a6cb1cee8ef011f8ce6cacb5df537019cb066610a6bb5dc9d14ee73da6d98bb17a1537a7c513155c3b30810623df7285946018cb45a34d0d450bb100339a704",
+				"derivedVia": "litSessionSignViaNacl",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7375\"}",
+				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
+				"algo": "ed25519"
+			},
+			"https://serrano.litgateway.com:7376": {
+				"sig": "c7fb445d0099fffd8fba6e79cd69d48748cc3fd2d82b0933828851c3f896116c72de44415391b74f129c2be25c58253bfce543947dfda190021a1b48b987f709",
+				"derivedVia": "litSessionSignViaNacl",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7376\"}",
 				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
 				"algo": "ed25519"
 			},
 			"https://serrano.litgateway.com:7377": {
-				"sig": "d86f62690c289d00b15fd0639ccbe6696163404e0ab17211e4475531036abb31ad64ddb90bcc15ac5b5ad2e5ce47e2f2058ab3efdfaf6f9a7aaac36ae3856f0b",
+				"sig": "edc4c80b326266df40e1cc3ca4c630f71d47efacb5e776ef54e438a0f7439da259bd916e92417e3aa01b1a8bb48c5cad582fcf8203c8bd3b8689e3163303e006",
 				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7377\"}",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7377\"}",
+				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
+				"algo": "ed25519"
+			},
+			"https://serrano.litgateway.com:7373": {
+				"sig": "19f50ce5f9b56a2977baa2f0c243f6395da3c40c97fc70c071cf36944f4be948bd8652dac673ffa78f99b4f8b9b942c0830b3bc65f48cea7fc4e5e3635baea06",
+				"derivedVia": "litSessionSignViaNacl",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7373\"}",
 				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
 				"algo": "ed25519"
 			},
 			"https://serrano.litgateway.com:7379": {
-				"sig": "410dd15499d6a24b85b9fbc84005a45c01876586015d626d47b6aec1c528a0d5dc5ed7291e2c45bdc4d6c2c3175b3119bcc9cca174d8ff2aeeaa84e81cd75b0d",
+				"sig": "aefad52231905d785a2045e768fefd0b01c69e6974a9bac11dc9fc35e1f0ced6b13a8bbbc339705e887ddc537480837357dfd9c5c749f159432697eed8532a0a",
 				"derivedVia": "litSessionSignViaNacl",
-				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0x71f5512f4850732b01ea1adefc82a87b3acd11094752c9b135bf3b513b8358e557197dc11c59db4f805e0f260ef3ebad10fa48321973b5abdc7cbd0333839d941c\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0xA9f46debD103DAD171FB0491635b840C382a5753\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: lzl6oAU2mpUR65TIt\\nIssued At: 2023-07-06T13:06:47.799Z\\nExpiration Time: 2023-07-07T13:06:47.633Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0xA9f46debD103DAD171FB0491635b840C382a5753\"}],\"issuedAt\":\"2023-07-06T13:06:53.187Z\",\"expiration\":\"2023-07-06T13:11:53.187Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7379\"}",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7379\"}",
+				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
+				"algo": "ed25519"
+			},
+			"https://serrano.litgateway.com:7372": {
+				"sig": "e7776143cfcbfcf3c18a6faa9560a6feeacfecdc95367231eb196b62a4eaa15cbd0f985f364241970111920f97f6bf187420c8cab15d9579a27c45c2a319a805",
+				"derivedVia": "litSessionSignViaNacl",
+				"signedMessage": "{\"sessionKey\":\"6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\",\"resourceAbilityRequests\":[{\"resource\":{\"resource\":\"*\",\"resourcePrefix\":\"lit-accesscontrolcondition\"},\"ability\":\"pkp-signing\"}],\"capabilities\":[{\"sig\":\"0xddaa6bc73bec0d3bfb6f61a409807e07ab9f88e6add1f2a19b539b6ddebfc7b8067335ab2ffd7d3233f051ed1c31d4d68e5afe3ceb0a11652c77a69ac775f2601b\",\"derivedVia\":\"web3.eth.personal.sign via Lit PKP\",\"signedMessage\":\"localhost:3000 wants you to sign in with your Ethereum account:\\n0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\\n\\nLit Protocol PKP session signature\\n\\nURI: lit:session:6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676\\nVersion: 1\\nChain ID: 1\\nNonce: OEBRxltmPzRKLmbDY\\nIssued At: 2023-07-07T10:47:48.407Z\\nExpiration Time: 2023-07-08T10:47:48.241Z\\nResources:\\n- urn:recap:eyJhdHQiOnsibGl0LWFjY2Vzc2NvbnRyb2xjb25kaXRpb246Ly8qIjp7IiovKiI6W3t9XX19LCJwcmYiOltdfQ\",\"address\":\"0x8C433380fF7c82dE5A2e10D5D1853B56a2Ef24Aa\"}],\"issuedAt\":\"2023-07-07T10:47:52.339Z\",\"expiration\":\"2023-07-07T10:52:52.339Z\",\"nodeAddress\":\"https://serrano.litgateway.com:7372\"}",
 				"address": "6894e83415d38630cef8805fedecfd672999659871c14bf6c9aed52560113676",
 				"algo": "ed25519"
 			}
@@ -241,7 +244,7 @@ async function handleLastPKP(pkps: PKP[]) {
 			pkps.map(async (pkp) => {
 				const permittedAddresses = await litContracts.pkpPermissionsContract.read.getPermittedAddresses(pkp.tokenId);	
 			
-				console.log("PKP permissions", {
+				console.log("PKP details with permissions", {
 					tokenId: pkp.tokenId,
 					publicKey: pkp.publicKey,
 					ethAddress: pkp.ethAddress,
@@ -249,7 +252,7 @@ async function handleLastPKP(pkps: PKP[]) {
 				});
 			})
 		);
-	
+	/*
 		console.info("Removing permitted addresses from PKP", pkpForLogging);
 	
 		const tx = await litContracts.pkpPermissionsContract.write.removePermittedAddress(
@@ -263,8 +266,45 @@ async function handleLastPKP(pkps: PKP[]) {
 		const res = await litContracts.pkpNftContract.write.burn(lastPKP.tokenId);
 
 		console.info("Burned PKP", res);
+	*/
+		const authSig = await generateAuthsig(pkpEthersWallet);
+
+		console.info("AuthSig", authSig);
 
 	} catch (err) {
 		console.error("Failed to handle last pkp", { err, lastPKP });
 	}
 }
+
+async function generateAuthsig(wallet: PKPEthersWallet) {
+	const statement = "";
+  
+	const expiration = new Date(
+	  Date.now() + 1000 * 60 * 60 * 24 * 7
+	).toISOString();
+
+	const siweMessage = new siwe.SiweMessage({
+	  domain: "localhost",
+	  address: wallet.address,
+	  statement,
+	  uri: "https://localhost",
+	  version: "1",
+	  chainId: 175177,
+	  expirationTime: expiration,
+	});
+  
+	const messageToSign = siweMessage.prepareMessage();
+  
+	const signature = await wallet.signMessage(messageToSign);
+  
+	const recoveredAddress = verifyMessage(messageToSign, signature);
+  
+	const authSig = {
+	  sig: signature,
+	  derivedVia: "web3.eth.personal.sign",
+	  signedMessage: messageToSign,
+	  address: recoveredAddress,
+	};
+  
+	return authSig;
+  }
